@@ -55,14 +55,16 @@ def get_type(s):
         return 'varchar(255)'
 
 
-def most_common(l):
+def most_common(l, default='varchar(255)'):
     """Return most common value from list
     """
     # some formats trump others
-    for dt_type in ('text', 'bigint'):
-        if dt_type in l:
-            return dt_type
-    return max(l, key=l.count)
+    if l:
+        for dt_type in ('text', 'bigint'):
+            if dt_type in l:
+                return dt_type
+        return max(l, key=l.count)
+    return default
 
 
 def get_col_types(input_file, max_rows=1000):
@@ -109,8 +111,19 @@ def get_insert(table, header):
         (table, field_names, field_markers)
 
 
-def safe_col(s):
-    return re.sub('\W+', '_', s.lower()).strip('_')
+def format_header(row):
+    """Format column names to remove illegal characters and duplicates
+    """
+    safe_col = lambda s: re.sub('\W+', '_', s.lower()).strip('_')
+    header = []
+    counts = collections.defaultdict(int)
+    for col in row:
+        col = safe_col(col)
+        counts[col] += 1
+        if counts[col] > 1:
+            col = '{}{}'.format(col, counts[col])
+        header.append(col)
+    return header
 
 
 def main(input_file, user, password, host, table, database):
@@ -129,9 +142,11 @@ def main(input_file, user, password, host, table, database):
     header = None
     for row in csv.reader(open(input_file)):
         if header:
+            while len(row) < len(header):
+                row.append('') # this row is missing columns so pad blank values
             cursor.execute(insert_sql, row)
         else:
-            header = [safe_col(col) for col in row]
+            header = format_header(row)
             schema_sql = get_schema(table, header, col_types)
             print schema_sql
             # create table
