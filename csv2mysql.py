@@ -98,7 +98,8 @@ def get_schema(table, header, col_types):
         id int NOT NULL AUTO_INCREMENT,""" % table 
 
     for col_name, col_type in zip(header, col_types):
-        schema_sql += '\n%s %s,' % (col_name, col_type)
+        if col_name != 'id':
+            schema_sql += '\n%s %s,' % (col_name, col_type)
 
     schema_sql += """\nPRIMARY KEY (id)
         ) DEFAULT CHARSET=utf8;"""
