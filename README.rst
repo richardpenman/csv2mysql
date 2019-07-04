@@ -6,8 +6,10 @@
 csv2mysql.py automatically parses a CSV file, creates MySQL table with appropriate field types, and then writes CSV data to the table.
 
 
+Usage
+-----
 
-Here is the usage: ::
+Here are the available options: ::
 
     $ python csv2mysql.py -h
       usage: csv2mysql.py [-h] [--table TABLE] [--database DATABASE] [--user USER]
@@ -74,3 +76,12 @@ Now check the results in MySQL: ::
     3 rows in set (0.00 sec)
 
 As you can see above the name has been stored as a varchar, age as an int, height as a double, dob as a date, and active as a time type.
+
+
+Install
+-------
+
+::
+
+    $ pip install MySQLdb
+    
